@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}
+  Chấm Công Nhân Viên
+{% endblock %}
+
+{% block css %}
+<style>
+  select {
+    padding: 5px 7px;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="management my-3">
+  <form method="get" class="d-inline">
+    {% csrf_token %}
+    <div style="position: relative;" class="d-inline display-date">
+      {{ form.date }}
+      <div class="d-inline" data-target="#id_date" data-toggle="datetimepicker">
+        <i class="fa fa-calendar"></i>
+      </div>
+    </div>
+    <button class="btn btn-primary">Chấm Công</button>
+  </form>
+  {% if month %}
+  <form method="GET" action="{% url 'time_keeping' %}" class="d-inline">
+    {% csrf_token %}
+    <input type="hidden" name="month" value="{{ month }}">
+    <input type="hidden" name="year" value="{{ year }}">
+    <button class="btn btn-info">Tính lương tháng {{ month }}/{{ year }}</button>
+  </form>
+  {% endif %}
+</div>
+{% if month %}
+<h4 class="my-3">Chấm Công Ngày {{day}}/{{month}}/{{year}}</h4>
+<table class="table table-striped staff-table">
+  <thead>
+    <tr>
+      <th scope="col" style="width: 1rem;">No</th>
+      <th scope="col">ID</th>
+      <th scope="col">Tên</th>
+      <th scope="col">Vị trí</th>
+      <th scope="col">Bộ phận</th>
+      <th scope="col">Giờ bắt đầu</th>
+      <th scope="col">Giờ kết thúc</th>
+      <th scope="col">chức năng</th>
+    </tr>
+  </thead>
+  <tbody class="table-body">
+    {% for workday in workdays %}
+    <tr>
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="pk" value="{{ workday.pk }}">
+        <input type="hidden" name="day" value="{{ day }}">
+        <input type="hidden" name="month" value="{{ month }}">
+        <input type="hidden" name="year" value="{{ year }}">
+        <th scope="row" style="width: 1rem;">{{ forloop.counter }}</th>
+        <td>{{ workday.staff.staff_id }}</td>
+        <td>{{ workday.staff.staff_name }}</td>
+        <td>{{ workday.staff.get_role_display }}</td>
+        <td>{{ workday.staff.get_department_display }}</td>
+        <td><input type="text" name="start_time" placeholder="hh:mm" value="{{ workday.start_time|time:'%H:%M'|default:'08:00' }}"></td>       
+        <td><input type="text" name="end_time" placeholder="hh:mm" value="{{ workday.end_time|time:'%H:%M'|default:'17:00' }}"></td>
+        {% if workday.start_time %}     
+        <td><button type="submit" class="btn btn-primary" disabled>Lưu</button></td>       
+        {% else %}
+        <td><button type="submit" class="btn btn-primary">Lưu</button></td>    
+        {% endif %}   
+      </form>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+{% endblock %}
+
+{% block js %}
+<script>
+  $(function () {
+    $("#id_date").datetimepicker({
+      format: 'DD/MM/YYYY',
+    });
+  });
+</script>
+{% endblock %}

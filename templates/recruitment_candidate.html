@@ -1,0 +1,370 @@
+{% extends "base.html" %}
+
+{% block title %}
+  Ứng Viên
+{% endblock %}
+
+{% block css %}
+<style>
+  select {
+    width: 100%;
+    padding: 5px 7px;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="management my-3">
+  <h4>Ứng viên {{recruitment.rec_name|title}}</h4>
+  <form class="search-form form-inline my-2 my-lg-0 d-inline" method="POST">
+    {% csrf_token %}
+    <input class="form-control mr-sm-2" type="search" placeholder="Tên hoặc id ứng viên.." aria-label="Search" name="search_data" required>
+    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Tìm Kiếm</button>
+  </form>
+  <span class="mx-3">|</span> <button class="btn btn-outline-primary my-2 my-sm-0 btn-add-staff" type="button" data-toggle="modal" data-target="#candidateModal">Thêm Ứng Viên</button>
+</div>
+<!-- Staff Modal -->
+<div class="modal fade" id="candidateModal" tabindex="-1" role="dialog" aria-labelledby="candidateModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="candidateModalLabel">Thêm Ứng Viên</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form class="add-candidate-form row d-flex justify-content-center" method="POST">
+          {% csrf_token %}
+          <table>
+            <tr>
+              <td style="width: 6.5rem;"><label for="id_c_name">Tên</label></td>
+              <td>{{ form.c_name }}</td>
+            </tr>
+            <tr>
+              <td style="width: 6.5rem;"><label for="id_dob">Ngày sinh</label></td>
+              <td>
+                {{ form.dob }}
+                <div class="d-inline" data-target="#id_dob" data-toggle="datetimepicker">
+                  <i class="fa fa-calendar"></i>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td style="width: 6.5rem;"><label for="id_phone">Số điện thoại</label></td>
+              <td>{{ form.phone }}</td>
+            </tr>
+            <tr>
+              <td style="width: 6.5rem;"><label for="id_card_id">CCCDID</label></td>
+              <td>{{ form.card_id }}</td>
+            </tr>
+            <tr>
+              <td style="width: 6.5rem;"><label for="id_address">Địa chỉ</label></td>
+              <td>{{ form.address }}</td>
+            </tr>
+            <tr>
+              <td style="width: 6.5rem;"><label for="id_qualification">Trình độ</label></td>
+              <td>{{ form.qualification }}</td>
+            </tr>
+          </table>
+      </div>
+      <div class="modal-footer">
+          <input type="hidden" id="rec_index" name="rec_index" value="{{ recruitment.pk}}">
+          <input type="hidden" id="index" name="index" value="">
+          <input type="hidden" id="_method" name="_method" value="POST">
+          <button class="btn btn-outline-info my-2 my-sm-0" type="submit">Lưu</button>
+          <button class="btn btn-outline-warning my-sm-0" id="btn-cancel" data-dismiss="modal" type="button">Huỷ bỏ</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Staff Modal Delete -->
+<div class="modal fade" id="candidateModalDel" tabindex="-1" role="dialog" aria-labelledby="candidateModalDelLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="candidateModalDelLabel">Xoá Ứng Viên</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form class="delete-candidate-form row d-flex justify-content-center" method="POST">
+          {% csrf_token %}
+          <table>
+            <tr>
+              <td style="width: 6.5rem;">Ứng viên</td>
+              <td id="del-c_name"></td>
+            </tr>
+            <tr>
+              <td style="width: 6.5rem;">Ngày sinh</td>
+              <td id="del-dob"></td>
+            </tr>
+          </table>
+      </div>
+      <div class="modal-footer">
+          <input type="hidden" id="dindex" name="dindex" value="">
+          <input type="hidden" name="_method" value="DELETE">
+          <button class="btn btn-outline-info my-2 my-sm-0" type="submit">Xoá</button>
+          <button class="btn btn-outline-warning my-sm-0" data-dismiss="modal" type="button">Huỷ Bỏ</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% if not recruitment.candidates.all %}
+<span id="empty-msg">There's 0 candidate.</span>
+{% else %}
+<table class="table table-striped staff-table">
+  <thead>
+    <tr>
+      <th scope="col" style="width: 1rem;">No</th>
+      <th scope="col">Tên ứng viên</th>
+      <th scope="col">Ngày sinh</th>
+      <th scope="col">Số điện thoại</th>
+      <th scope="col">CCCDID</th>
+      <th scope="col">Địa chỉ</th>
+      <th scope="col">Trình độ</th>
+    </tr>
+  </thead>
+  <tbody class="table-body" data-length="{{ recruitment.candidates.all|length }}">
+    {% for candidate in recruitment.candidates.all %}
+    <tr class="candidate{{ forloop.counter }} candidatepk{{candidate.pk}}" data-c_name="{{ candidate.c_name }}" data-dob="{{ candidate.dob|date:'d/m/Y' }}" data-qualification="{{ candidate.qualification }}" data-card_id="{{ candidate.card_id }}" data-phone="{{ candidate.phone }}" data-address="{{ candidate.address }}" data-index="{{ candidate.pk }}">
+      <th scope="row" style="width: 1rem;">{{ forloop.counter }}</th>
+      <td>{{ candidate.c_name }}</td>
+      <td>{{ candidate.dob|date:"d/m/Y" }}</td>
+      <td>{{ candidate.phone }}</td>      
+      <td>{{ candidate.card_id }}</td>
+      <td>{{ candidate.address }}</td>
+      <td>{{ candidate.qualification }}</td>
+      <td>
+        <button class="btn btn-outline-secondary my-2 my-sm-0 btn-edit" data-no="{{ forloop.counter }}" type="button" data-toggle="modal" data-target="#candidateModal">Sửa</button>
+        <button class="btn btn-outline-danger my-2 my-sm-0 btn-del" data-no="{{ forloop.counter }}" type="button" data-toggle="modal" data-target="#candidateModalDel">Xoá</button>
+      </td>      
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+{% endblock %}
+
+{% block js %}
+<script>
+  function dateFormat(str){
+    let arr = str.split("-");
+    return `${arr[2]}/${arr[1]}/${arr[0]}`;
+  }
+
+  $(function () {
+    $("#id_dob").datetimepicker({
+      format: 'DD/MM/YYYY',
+    });
+  });
+
+  function makeEditModalInfo(btn) {
+    btn.click(function() {
+      let idx = parseInt($(this).attr('data-no'));
+      $('#index').val($('.candidate'+idx).attr('data-index'));
+      $('#id_c_name').val($('.candidate'+idx).attr('data-c_name'));
+      $('#id_dob').val($('.candidate'+idx).attr('data-dob'));
+      $('#id_phone').val($('.candidate'+idx).attr('data-phone'));
+      $('#id_card_id').val($('.candidate'+idx).attr('data-card_id'));
+      $('#id_address').val($('.candidate'+idx).attr('data-address'));
+      $('#id_qualification').val($('.candidate'+idx).attr('data-qualification'));
+      $('#_method').val('PUT');
+    });
+  }
+  
+  function makeDelModalInfo(btn) {
+    btn.click(function() {
+      let idx = parseInt($(this).data('no'));
+      $('#dindex').val($('.candidate'+idx).data('index'));
+      let name =  $('.candidate'+idx).data('c_name');
+      let dob =  $('.candidate'+idx).data('dob');
+      document.querySelector('#del-c_name').innerHTML = name+'';
+      document.querySelector('#del-dob').innerHTML = dob+"";
+      
+    });
+  }
+  function triggerAllEditBtn() {
+    $('.btn-edit').each(function() {
+      makeEditModalInfo($(this));
+    });
+  }
+
+  function triggerAllDelBtn() {
+    $('.btn-del').each(function() {
+      makeDelModalInfo($(this));
+    });
+  }
+
+  triggerAllEditBtn();
+  triggerAllDelBtn();
+
+  $('#candidateModal').on('hidden.bs.modal', function () {
+    $(".add-candidate-form").trigger('reset');
+    $('#_method').val('POST');
+    $('#index').val('');
+  });
+
+  $(".add-candidate-form").submit(function(e) {
+    e.preventDefault();
+    let serializedData = $(this).serialize();
+    $.ajax({
+      type: "POST",
+      url: "{% url 'candidate_ajax' %}",
+      data: serializedData,
+      success: function (response) {
+        if (response["method"] == "POST") {
+          if (response["result"] == "error") {
+            alert(response.error);
+          }
+          else {
+            let candidate = JSON.parse(response["candidate"]);
+            let fields = candidate[0]["fields"];
+            let tbLength = parseInt($('.table-body').data('length'));
+            if (isNaN(tbLength)) {
+              $("main").append(
+                `
+                <table class="table table-striped staff-table">
+                  <thead>
+                    <tr>
+                      <th scope="col" style="width: 1rem;">No</th>
+                      <th scope="col">Tên ứng viên</th>
+                      <th scope="col">Ngày sinh</th>
+                      <th scope="col">Số điện thoại</th>
+                      <th scope="col">CCCDID</th>
+                      <th scope="col">Địa chỉ</th>
+                      <th scope="col">Trình độ</th>
+                    </tr>
+                  </thead>
+                  <tbody class="table-body" data-length="0">
+                  </tbody>
+                </table>
+                `
+              )
+              $("#empty-msg").text("");
+              tbLength = 0;
+            }
+            $('.table-body').data('length', tbLength+1);
+            $(".table-body").append(
+              `
+              <tr class="candidate${tbLength+1} candidatepk${candidate[0]['pk']}" data-c_name="${fields['c_name']}" data-dob="${dateFormat(fields['dob'])}" data-qualification="${fields['qualification']}" data-card_id="${fields['card_id']}" data-phone="${fields['phone']}" data-address="${fields['address']}" data-index="${candidate[0]['pk']}">
+              <th scope="row" style="width: 1rem;">${tbLength+1}</th>
+              <td>${fields['c_name']}</td>
+              <td>${dateFormat(fields['dob'])}</td>
+              <td>${fields['phone']}</td>      
+              <td>${fields['card_id']}</td>
+              <td>${fields['address']}</td>
+              <td>${fields['qualification']}</td>
+              <td>
+                <button class="btn btn-outline-secondary my-2 my-sm-0 btn-edit" data-no="${tbLength+1}" type="button" data-toggle="modal" data-target="#candidateModal">Sửa</button>
+                <button class="btn btn-outline-danger my-2 my-sm-0 btn-del" data-no="${tbLength+1}" type="button" data-toggle="modal" data-target="#candidateModalDel">Xoá</button>
+                </td>      
+                </tr>
+              `
+            )
+            triggerAllEditBtn();
+            triggerAllDelBtn();
+            $(".add-candidate-form").trigger('reset');
+            $('#candidateModal').modal('hide');
+          }
+        }
+        else if (response["method"] == "PUT") {
+          let candidate = JSON.parse(response["candidate"]);
+          let fields = candidate[0]["fields"];
+
+          const candidateParent = document.querySelector(".candidatepk"+candidate[0]['pk']);
+          candidateParent.dataset.c_name= fields['c_name']
+          candidateParent.dataset.dob= fields['dob']
+          candidateParent.dataset.phone= fields['phone']
+          candidateParent.dataset.card_id= fields['card_id']
+          candidateParent.dataset.address= fields['address']
+          candidateParent.dataset.qualification= fields['qualification']
+          
+          const candidateElements = candidateParent.querySelectorAll('td');
+          candidateElements[0].innerHTML = fields['c_name'];
+          candidateElements[1].innerHTML = fields['dob'];
+          candidateElements[2].innerHTML = fields['phone'];
+          candidateElements[4].innerHTML = fields['card_id'];
+          candidateElements[3].innerHTML = fields['address'];
+          candidateElements[5].innerHTML = fields['qualification'];
+
+          triggerAllEditBtn();
+          triggerAllDelBtn();
+          $(".add-candidate-form").trigger('reset');
+          $('#candidateModal').modal('hide');
+        }
+      },
+      error: function (response) {
+        console.log("0");
+      }
+    });
+  });
+  $(".delete-candidate-form").submit(function(e) {
+    e.preventDefault();
+    let serializedData = $(this).serialize();
+    $.ajax({
+      type: "POST",
+      url: "{% url 'candidate_ajax' %}",
+      data: serializedData,
+      success: function (response) {
+        if (response["method"] == "DELETE" && response['result'] == 'success') {
+          // alert(response['result']);
+          let candidatepk = JSON.parse(response['candidate'])[0]['pk'];
+          $('.candidatepk'+candidatepk).remove();
+          let tbLength = parseInt($('.table-body').data('length'));
+          $('.table-body').data('length', tbLength-1);
+          $('#candidateModalDel').modal('hide');
+        }
+      },
+      error: function (response) {
+        console.log("0");
+      }
+    });
+  });
+  $(".search-form").submit(function(e) {
+    e.preventDefault();
+    let serializedData = $(this).serialize();
+    $.ajax({
+      type: "POST",
+      url: "{% url 'search' 'candidate' %}",
+      data: serializedData,
+      success: function (response) {
+        let candidateLength = response['candidates'].length;
+        $('.table-body').data('length', candidateLength);
+        $('.table-body').children().remove();
+        for (let i = 0; i < candidateLength; i++) {
+          let candidate = JSON.parse(response['candidates'][i]);
+          let fields = candidate[0]["fields"];
+          let tbLength = i;
+          $(".table-body").append(
+              `
+              <tr class="candidate${tbLength+1} candidatepk${candidate[0]['pk']}" data-c_name="${fields['c_name']}" data-dob="${dateFormat(fields['dob'])}" data-qualification="${fields['qualification']}" data-card_id="${fields['card_id']}" data-phone="${fields['phone']}" data-address="${fields['address']}" data-index="${candidate[0]['pk']}">
+                <th scope="row" style="width: 1rem;">${tbLength+1}</th>
+                <td>${fields['c_name']}</td>
+                <td>${dateFormat(fields['dob'])}</td>
+                <td>${fields['phone']}</td>      
+                <td>${fields['card_id']}</td>
+                <td>${fields['address']}</td>
+                <td>${fields['qualification']}</td>
+                <td>
+                  <button class="btn btn-outline-secondary my-2 my-sm-0 btn-edit" data-no="${tbLength+1}" type="button" data-toggle="modal" data-target="#candidateModal">Sửa</button>
+                  <button class="btn btn-outline-danger my-2 my-sm-0 btn-del" data-no="${tbLength+1}" type="button" data-toggle="modal" data-target="#candidateModalDel">Xoá</button>
+                </td>      
+                </tr>
+              `
+            )
+
+          triggerAllEditBtn();
+          triggerAllDelBtn();
+        }
+      },
+      error: function (response) {
+        console.log("0");
+      }
+    });
+  });
+</script>
+{% endblock %} 

@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}
+  Trang Chủ
+{% endblock %}
+
+{% block css %}
+<style>
+  .main-menu {
+    height: 80vh;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="main-menu d-flex flex-column text-center justify-content-center">
+  <div class="menu-item my-2">
+    <a href="{% url 'profile_management' %}" class="btn btn-outline-primary btn-lg">Quản Lý Hồ Sơ</a>
+  </div>
+  <div class="menu-item my-2">
+    <a href="{% url 'recruitment_management' %}" class="btn btn-outline-success btn-lg">Quản Lý Tuyển Dụng</a>
+  </div>
+  <div class="menu-item my-2">
+    <a href="{% url 'salary_management' %}" class="btn btn-outline-info btn-lg">Quản Lý Lương</a>
+  </div>
+</div class="main-menu">
+{% endblock %}

@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% load humanize %}
+
+{% block title %}
+  Quản Lý Lương
+{% endblock %}
+
+{% block css %}
+<style>
+  select {
+    padding: 5px 7px;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="management my-3">
+  <form action="" method="get">
+    <div class="d-inline">
+      <label for="id_month">Tháng</label>
+      <select id="id_month" name="month">
+        {% for i in months %}
+        {% if i == month %}  
+          <option selected>{{ i }}</option>
+        {% else %}
+          <option>{{ i }}</option>
+        {% endif %}
+        {% endfor %}
+      </select>
+    </div>
+    <div class="d-inline">
+      <label for="id_year">Năm</label>
+      <select id="id_year" name="year">
+        {% for i in years %}
+        {% if i == year %}  
+          <option selected>{{ i }}</option>
+        {% else %}
+          <option>{{ i }}</option>
+        {% endif %}
+        {% endfor %}
+      </select>
+    </div>
+    <button class="btn btn-primary">Xem Lương</button>
+    <a href="{% url 'workday_management' %}" class="btn btn-success">Chấm Công Nhân Viên</a>
+  </form>
+</div>
+<table class="table table-striped staff-table">
+  <thead>
+    <tr>
+      <th scope="col" style="width: 1rem;">No</th>
+      <th scope="col">ID</th>
+      <th scope="col">Tên</th>
+      <th scope="col">Vị trí</th>
+      <th scope="col">Bộ phận</th>
+      <th scope="col">Lương gốc</th>
+      <th scope="col">Lương phụ cấp</th>
+      <th scope="col">Tổng lương</th>
+    </tr>
+  </thead>
+  <tbody class="table-body">
+    {% for monthSalary in monthSalarys %}
+    <tr>
+      <th scope="row" style="width: 1rem;">{{ forloop.counter }}</th>
+      <td>{{ monthSalary.staff.staff_id }}</td>
+      <td>{{ monthSalary.staff.staff_name }}</td>
+      <td>{{ monthSalary.staff.get_role_display }}</td>
+      <td>{{ monthSalary.staff.get_department_display }}</td>
+      <td>{{ monthSalary.get_month_salary|floatformat:0|intcomma }}</td>       
+      <td>{{ monthSalary.get_month_allowance|floatformat:0|intcomma }}</td>       
+      <td>{{ monthSalary.get_month_total_salary|floatformat:0|intcomma }}</td>       
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
+
+{% block js %}
+<script>
+</script>
+{% endblock %}

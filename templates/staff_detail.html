@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}
+  Chi Tiết Nhân Viên
+{% endblock %}
+
+{% block css %}
+<style>
+  .main-menu {
+    height: 80vh;
+  }
+  td {
+    padding: 5%;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<h4 class="my-3">Thông Tin Chi Tiết Nhân Viên</h4>
+<div class="row">
+  <table class="col-3">
+    <tr>
+      <td>Tên</td>
+      <td>{{ staff.staff_name }}</td>
+    </tr>
+    <tr>
+      <td>ID</td>
+      <td>{{ staff.staff_id }}</td>
+    </tr>
+    <tr>
+      <td>Vị trí</td>
+      <td>{{ staff.get_role_display }}</td>
+    </tr>
+    <tr>
+      <td>Bộ phận</td>
+      <td>{{ staff.get_department_display }}</td>
+    </tr>
+    <tr>
+      <td>CCCDID</td>
+      <td>{{ staff.card_id }}</td>
+    </tr>
+    <tr>
+      <td>Số điện thoại</td>
+      <td>{{ staff.phone }}</td>  
+    </tr>
+    <tr>
+      <td>Địa chỉ</td>
+      <td>{{ staff.address }}</td>  
+    </tr>
+    <tr>
+      <td>Trình độ</td>
+      <td>{{ staff.get_qualification_display }}</td>  
+    </tr>
+  </table>
+  <div class="col-3"></div>
+  <table class="col-3">
+    <tr>
+      <td>Lương cơ bản</td>
+      <td>{{ staff.salaryBase.basic_salary }} VND/h</td>
+    </tr>
+    <tr>
+      <td>Hệ số lương</td>
+      <td>{{ staff.salaryBase.salary_coefficient }}</td>
+    </tr>
+    <tr>
+      <td>Hệ số phụ cấp</td>
+      <td>{{ staff.salaryBase.allowances_coefficient }}</td>
+    </tr>
+  </table>
+</div>
+{% endblock %}

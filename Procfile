@@ -1,0 +1,1 @@
+web: gunicorn DemoPTHTTTQL.wsgi --log-file -

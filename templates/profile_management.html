@@ -1,0 +1,373 @@
+{% extends "base.html" %}
+
+{% block title %}
+  Quản Lý Hồ Sơ
+{% endblock %}
+
+{% block css %}
+<style>
+  select {
+    width: 100%;
+    padding: 5px 7px;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="management my-3">
+  <form class="search-form form-inline my-2 my-lg-0 d-inline" method="POST">
+    {% csrf_token %}
+    <input class="form-control mr-sm-2" type="search" placeholder="Tên hoặc id nhân viên.." aria-label="Search" name="search_data" required>
+    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Tìm Kiếm</button>
+  </form>
+  <span class="mx-3">|</span> <button class="btn btn-outline-primary my-2 my-sm-0 btn-add-staff" type="button" data-toggle="modal" data-target="#staffModal">Thêm Nhân Viên</button>
+</div>
+<!-- Staff Modal -->
+<div class="modal fade" id="staffModal" tabindex="-1" role="dialog" aria-labelledby="staffModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="staffModalLabel">Thêm Nhân Viên Mới</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form class="add-staff-form row d-flex justify-content-center" method="POST">
+          {% csrf_token %}
+          <table>
+            <tr>
+              <td style="width: 6.5rem;"><label for="id_staff_id">ID</label></td>
+              <td>{{ form.staff_id }}</td>
+            </tr>
+            <tr>
+              <td style="width: 6.5rem;"><label for="id_staff_name">Tên</label></td>
+              <td>{{ form.staff_name }}</td>
+            </tr>
+            <tr>
+              <td style="width: 6.5rem;"><label for="id_role">Vị trí</label></td>
+              <td>{{ form.role }}</td>
+            </tr>
+            <tr>
+              <td style="width: 6.5rem;"><label for="id_card_id">CCCDID</label></td>
+              <td>{{ form.card_id }}</td>
+            </tr>
+            <tr>
+              <td style="width: 6.5rem;"><label for="id_phone">Số điện thoại</label></td>
+              <td>{{ form.phone }}</td>
+            </tr>
+            <tr>
+              <td style="width: 6.5rem;"><label for="id_address">Địa chỉ</label></td>
+              <td>{{ form.address }}</td>
+            </tr>
+            <tr>
+              <td style="width: 6.5rem;"><label for="id_department">Bộ phận</label></td>
+              <td>{{ form.department }}</td>
+            </tr>
+            <tr>
+              <td style="width: 6.5rem;"><label for="id_qualification">Trình độ</label></td>
+              <td>{{ form.qualification }}</td>
+            </tr>
+          </table>
+      </div>
+      <div class="modal-footer">
+          <input type="hidden" id="index" name="index" value="">
+          <input type="hidden" id="_method" name="_method" value="POST">
+          <button class="btn btn-outline-info my-2 my-sm-0" type="submit">Lưu</button>
+          <button class="btn btn-outline-warning my-sm-0" id="btn-cancel" data-dismiss="modal" type="button">Huỷ bỏ</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Staff Modal Delete -->
+<div class="modal fade" id="staffModalDel" tabindex="-1" role="dialog" aria-labelledby="staffModalDelLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="staffModalDelLabel">Xoá Nhân Viên</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form class="delete-staff-form row d-flex justify-content-center" method="POST">
+          {% csrf_token %}
+          <table>
+            <tr>
+              <td style="width: 6.5rem;">ID</td>
+              <td id="del-staff_id"></td>
+            </tr>
+            <tr>
+              <td style="width: 6.5rem;">Tên</td>
+              <td id="del-staff_name"></td>
+            </tr>
+          </table>
+      </div>
+      <div class="modal-footer">
+          <input type="hidden" id="dindex" name="dindex" value="">
+          <input type="hidden" name="_method" value="DELETE">
+          <button class="btn btn-outline-info my-2 my-sm-0" type="submit">Xoá</button>
+          <button class="btn btn-outline-warning my-sm-0" data-dismiss="modal" type="button">Huỷ bỏ</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% if not staffs %}
+  <span id="empty-msg">There's 0 staff.</span>
+{% else %}
+<table class="table table-striped staff-table">
+  <thead>
+    <tr>
+      <th scope="col" style="width: 1rem;">No</th>
+      <th scope="col">ID</th>
+      <th scope="col">Tên</th>
+      <th scope="col">Vị trí</th>
+      <th scope="col">Bộ phận</th>
+      <th scope="col">CCCDID</th>
+      <th scope="col">Số điện thoại</th>
+      <th scope="col">Chức năng</th>
+    </tr>
+  </thead>
+  <tbody class="table-body" data-length="{{ staffs|length }}">
+    {% for staff in staffs %}
+    <tr class="staff{{ forloop.counter }} staffpk{{staff.pk}}" data-staff_id="{{ staff.staff_id }}" data-staff_name="{{ staff.staff_name }}" data-role="{{ staff.role }}" data-department="{{ staff.department }}" data-card_id="{{ staff.card_id }}" data-phone="{{ staff.phone }}" data-address="{{ staff.address }}" data-qualification="{{ staff.qualification }}" data-index="{{ staff.pk }}">
+      <th scope="row" style="width: 1rem;">{{ forloop.counter }}</th>
+      <td>{{ staff.staff_id }}</td>
+      <td>{{ staff.staff_name }}</td>
+      <td>{{ staff.get_role_display }}</td>
+      <td>{{ staff.get_department_display }}</td>
+      <td>{{ staff.card_id }}</td>
+      <td>{{ staff.phone }}</td>      
+      <td>
+        <button class="btn btn-outline-secondary my-2 my-sm-0 btn-edit" data-no="{{ forloop.counter }}" type="button" data-toggle="modal" data-target="#staffModal">Sửa</button>
+        <button class="btn btn-outline-danger my-2 my-sm-0 btn-del" data-no="{{ forloop.counter }}" type="button" data-toggle="modal" data-target="#staffModalDel">Xoá</button>
+        <a href="{% url 'staff_detail' staff.pk %}" type="button" class="btn btn-info">Xem</a>
+      </td>      
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+{% endblock %}
+
+{% block js %}
+<script>
+  function makeEditModalInfo(btn) {
+    btn.click(function() {
+      let idx = parseInt($(this).data('no'));
+      $('#index').val($('.staff'+idx).attr('data-index'));
+      $('#id_staff_id').val($('.staff'+idx).attr('data-staff_id'));
+      $('#id_staff_name').val($('.staff'+idx).attr('data-staff_name'));
+      $('#id_role').val($('.staff'+idx).attr('data-role'));
+      $('#id_department').val($('.staff'+idx).attr('data-department'));
+      $('#id_card_id').val($('.staff'+idx).attr('data-card_id'));
+      $('#id_phone').val($('.staff'+idx).attr('data-phone'));
+      $('#id_address').val($('.staff'+idx).attr('data-address'));
+      $('#id_qualification').val($('.staff'+idx).attr('data-qualification'));
+      $('#_method').val('PUT');
+      console.log();
+    });
+  }
+  
+  function makeDelModalInfo(btn) {
+    btn.click(function() {
+      let idx = parseInt($(this).data('no'));
+      $('#dindex').val($('.staff'+idx).data('index'));
+      let name =  $('.staff'+idx).data('staff_name');
+      let id =  $('.staff'+idx).data('staff_id');
+      document.querySelector('#del-staff_id').innerHTML = id+'';
+      document.querySelector('#del-staff_name').innerHTML = name+"";
+      
+    });
+  }
+  function triggerAllEditBtn() {
+    $('.btn-edit').each(function() {
+      makeEditModalInfo($(this));
+    });
+  }
+
+  function triggerAllDelBtn() {
+    $('.btn-del').each(function() {
+      makeDelModalInfo($(this));
+    });
+  }
+
+  triggerAllEditBtn();
+  triggerAllDelBtn();
+
+  $('#staffModal').on('hidden.bs.modal', function () {
+    $(".add-staff-form").trigger('reset');
+    $('#_method').val('POST');
+    $('#index').val('');
+  });
+
+  $(".add-staff-form").submit(function(e) {
+    e.preventDefault();
+    let serializedData = $(this).serialize();
+    $.ajax({
+      type: "POST",
+      url: "{% url 'profile_management_ajax' %}",
+      data: serializedData,
+      success: function (response) {
+        if (response["method"] == "POST") {
+          if (response["result"] == "error") {
+            alert(response.error);
+          } else {
+            let staff = JSON.parse(response["staff"]);
+            let fields = staff[0]["fields"];
+            let staff_display = response["staff_display"];
+            let tbLength = parseInt($('.table-body').data('length'));
+            if (isNaN(tbLength)) {
+              $("main").append(
+                `
+                
+                <table class="table table-striped staff-table">
+                  <thead>
+                    <tr>
+                      <th scope="col" style="width: 1rem;">No</th>
+                      <th scope="col">ID</th>
+                      <th scope="col">Tên</th>
+                      <th scope="col">Vị trí</th>
+                      <th scope="col">Bộ phận</th>
+                      <th scope="col">CCCDID</th>
+                      <th scope="col">Số điện thoại</th>
+                      <th scope="col">Chức năng</th>
+                    </tr>
+                  </thead>
+                  <tbody class="table-body" data-length="0">
+                  </tbody>
+                </table>
+                `
+              )
+              $("#empty-msg").text("");
+              tbLength = 0;
+            }
+            $('.table-body').data('length', tbLength+1);
+            $(".table-body").append(
+              `
+              <tr class="staff${tbLength+1} staffpk${staff[0]['pk']}" data-staff_id="${fields['staff_id']}" data-staff_name="${fields['staff_name']}" data-role="${fields['role']}" data-department="${fields['department']}" data-card_id="${fields['card_id']}" data-phone="${fields['phone']}" data-address="${fields['address']}" data-qualification="${fields['qualification']}" data-index="${staff[0]['pk']}">
+                <th scope="row" style="width: 1rem;">${tbLength+1}</th>
+                <td>${fields['staff_id']}</td>
+                <td>${fields['staff_name']}</td>
+                <td>${staff_display['role']}</td>
+                <td>${staff_display['department']}</td>
+                <td>${fields['card_id']}</td>
+                <td>${fields['phone']}</td>      
+                <td>
+                  <button class="btn btn-outline-secondary my-2 my-sm-0 btn-edit" data-no="${tbLength+1}" type="button" data-toggle="modal" data-target="#staffModal">Sửa</button>
+                  <button class="btn btn-outline-danger my-2 my-sm-0 btn-del" data-no="${tbLength+1}" type="button" data-toggle="modal" data-target="#staffModalDel">Xoá</button>
+                  <a href="/profile_management/${staff[0]['pk']}/staff_detail" type="button" class="btn btn-info">Xem</a>
+                </td>      
+              </tr>
+              `
+            )
+            triggerAllEditBtn();
+            triggerAllDelBtn();
+            $(".add-staff-form").trigger('reset');
+            $('#staffModal').modal('hide');
+          }
+        }
+        else if (response["method"] == "PUT") {
+          let staff = JSON.parse(response["staff"]);
+          let fields = staff[0]["fields"];
+          let staff_display = response["staff_display"];
+
+          const staffParent = document.querySelector(".staffpk"+staff[0]['pk']);
+          staffParent.dataset.staff_id= fields['staff_id']
+          staffParent.dataset.staff_name= fields['staff_name']
+          staffParent.dataset.role= fields['role']
+          staffParent.dataset.department= fields['department']
+          staffParent.dataset.card_id= fields['card_id']
+          staffParent.dataset.phone= fields['phone']
+          staffParent.dataset.address= fields['address']
+          staffParent.dataset.qualification= fields['qualification']
+          
+          const staffElements = staffParent.querySelectorAll('td');
+          staffElements[0].innerHTML = fields['staff_id'];
+          staffElements[1].innerHTML = fields['staff_name'];
+          staffElements[2].innerHTML = staff_display['role'];
+          staffElements[3].innerHTML = staff_display['department'];
+          staffElements[4].innerHTML = fields['card_id'];
+          staffElements[5].innerHTML = fields['phone'];
+
+          triggerAllEditBtn();
+          triggerAllDelBtn();
+          $(".add-staff-form").trigger('reset');
+          $('#staffModal').modal('hide');
+        }
+      },
+      error: function (response) {
+        console.log("0");
+      }
+    });
+  });
+  $(".delete-staff-form").submit(function(e) {
+    e.preventDefault();
+    let serializedData = $(this).serialize();
+    $.ajax({
+      type: "POST",
+      url: "{% url 'profile_management_ajax' %}",
+      data: serializedData,
+      success: function (response) {
+        if (response["method"] == "DELETE" && response['result'] == 'success') {
+          // alert(response['result']);
+          let staffpk = JSON.parse(response['staff'])[0]['pk'];
+          $('.staffpk'+staffpk).remove();
+          let tbLength = parseInt($('.table-body').data('length'));
+          $('.table-body').data('length', tbLength-1);
+          $('#staffModalDel').modal('hide');
+        }
+      },
+      error: function (response) {
+        console.log("0");
+      }
+    });
+  });
+  $(".search-form").submit(function(e) {
+    e.preventDefault();
+    let serializedData = $(this).serialize();
+    $.ajax({
+      type: "POST",
+      url: "{% url 'search' 'staff' %}",
+      data: serializedData,
+      success: function (response) {
+        let staffLength = response['staffs'].length;
+        $('.table-body').data('length', staffLength);
+        $('.table-body').children().remove();
+        for (let i = 0; i < staffLength; i++) {
+          let staff = JSON.parse(response['staffs'][i]);
+          let fields = staff[0]["fields"];
+          let staff_display = response["staffs_display"][i];
+          let tbLength = i;
+          $(".table-body").append(
+            `
+            <tr class="staff${tbLength+1} staffpk${staff[0]['pk']}" data-staff_id="${fields['staff_id']}" data-staff_name="${fields['staff_name']}" data-role="${fields['role']}" data-department="${fields['department']}" data-card_id="${fields['card_id']}" data-phone="${fields['phone']}" data-address="${fields['address']}" data-qualification="${fields['qualification']}" data-index="${staff[0]['pk']}">
+              <th scope="row" style="width: 1rem;">${tbLength+1}</th>
+              <td>${fields['staff_id']}</td>
+              <td>${fields['staff_name']}</td>
+              <td>${staff_display['role']}</td>
+              <td>${staff_display['department']}</td>
+              <td>${fields['card_id']}</td>
+              <td>${fields['phone']}</td>      
+              <td>
+                <button class="btn btn-outline-secondary my-2 my-sm-0 btn-edit" data-no="${tbLength+1}" type="button" data-toggle="modal" data-target="#staffModal">Sửa</button>
+                <button class="btn btn-outline-danger my-2 my-sm-0 btn-del" data-no="${tbLength+1}" type="button" data-toggle="modal" data-target="#staffModalDel">Xoá</button>
+                <a href="/profile_management/${staff[0]['pk']}/staff_detail" type="button" class="btn btn-info">Xem</a>
+              </td>      
+            </tr>
+            `
+          )
+
+          triggerAllEditBtn();
+          triggerAllDelBtn();
+        }
+      },
+      error: function (response) {
+        console.log("0");
+      }
+    });
+  });
+</script>
+{% endblock %}
